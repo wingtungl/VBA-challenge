@@ -1,0 +1,100 @@
+Sub Summary()
+    For Each ws In Worksheets
+        ws.Activate
+        
+        Dim ticker As String
+        Dim summary_table_row As Integer
+        Dim yearly_change As Double
+        Dim percent_change As Double
+       
+        total_stock = 0
+        summary_table_row = 2
+        open_price = Cells(2, "C").Value
+        
+        row_count = Cells(Rows.Count, "A").End(xlUp).Row
+        
+        For i = 2 To row_count
+            If ws.Cells(i + 1, "A").Value <> ws.Cells(i, "A").Value Then
+                ticker = ws.Cells(i, "A").Value
+                total_stock = total_stock + ws.Cells(i, "G").Value
+                yearly_change = ws.Cells(i, "F").Value - open_price
+                percent_change = yearly_change / open_price * 100
+            
+                ws.Range("K" & summary_table_row).Value = ticker
+                ws.Range("L" & summary_table_row).Value = yearly_change
+                ws.Range("M" & summary_table_row).Value = "%" & percent_change
+                ws.Range("N" & summary_table_row).Value = total_stock
+                
+                If yearly_change > 0 Then
+                    Range("L" & summary_table_row).Interior.Color = vbGreen
+                ElseIf yearly_change < 0 Then
+                    Range("L" & summary_table_row).Interior.Color = vbRed
+                Else
+                    Range("L" & summary_table_row).Interior.Color = vbWhite
+                End If
+                
+                summary_table_row = summary_table_row + 1
+                total_stock = 0
+                open_price = Cells(i + 1, "C").Value
+                
+            Else
+                total_stock = total_stock + ws.Cells(i, "G").Value
+            
+            End If
+        
+
+        Next i
+        
+        Range("Q2").Value = "Greatest Percent Increase"
+        Range("Q3").Value = "Greatest Percent Decrease"
+        Range("Q4").Value = "Greatest Total Stock Volume"
+        Range("R1").Value = "Ticker"
+        Range("S1").Value = "Value"
+        
+        row_count = Cells(Rows.Count, "K").End(xlUp).Row
+        
+        greatest_inc = 0
+        greatest_dec = 0
+        greatest_vol = 0
+        greatest_ticker = ""
+        
+        For i = 2 To row_count
+            If ws.Cells(i, "L").Value > greatest_inc Then
+                greatest_inc = ws.Cells(i, "L").Value
+                greatest_ticker = ws.Cells(i, "K").Value
+            End If
+        Next i
+        
+         Range("R2").Value = greatest_ticker
+         Range("S2").Value = greatest_inc
+         
+        For i = 2 To row_count
+            If ws.Cells(i, "L").Value < greatest_dec Then
+                greatest_dec = ws.Cells(i, "L").Value
+                greatest_ticker = ws.Cells(i, "K").Value
+            End If
+        Next i
+        
+         Range("R3").Value = greatest_ticker
+         Range("S3").Value = greatest_dec
+         
+         For i = 2 To row_count
+            If ws.Cells(i, "N").Value > greatest_vol Then
+                greatest_vol = ws.Cells(i, "N").Value
+                greatest_ticker = ws.Cells(i, "K").Value
+            End If
+        Next i
+        
+         Range("R4").Value = greatest_ticker
+         Range("S4").Value = greatest_vol
+    
+    
+        Columns("K:T").AutoFit
+        
+    Next ws
+    
+    MsgBox ("complete")
+
+
+End Sub
+
